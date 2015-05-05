@@ -3,26 +3,36 @@
 var request = require('request');
 var async = require('async');
 
-var name, status;
+var url = 'http://localhost:8080/';
 
-var getUsername = function(callback) {
-	request.get(
-		'http://localhost:8080/getUserName?id=1234',
-		function(err, res, body) {
-			var result = JSON.parse(body);
-			callback(err, result.value);
+async.series([
+	function(callback) {
+		request.get(url + 'getUserName?id=1234', function(err, res, body) {
+			callback(null, 'Name: ' + JSON.parse(body).value);
 		});
-};
+	},
 
-var getUserStatus = function(callback) {
-	request.get(
-		'http://localhost:8080/getUserStatus?id=1234',
-		function(err, res, body) {
-			var result = JSON.parse(body);
-			callback(err, result.value);
+	function(callback) {
+		request.get(url + 'getUserStatus?id=1234', function(err, res, body) {
+			callback(null, 'Status: ' + JSON.parse(body).value);
 		});
-};
+	},
 
-async.parallel([getUsername, getUserStatus], function(err, results) {
-	console.log('The status of user ', results[0], ' is ', results[1]);
-});
+	function(callback) {
+		request.get(url + 'getUserCountry?id=1234', function(err, res, body) {
+			callback(null, 'Country: ' + JSON.parse(body).value);
+		});
+	},
+
+	function(callback) {
+		request.get(url + 'getUserAge?id=1234', function(err, res, body) {
+			callback(null, 'Age: ' + JSON.parse(body).value);
+		});
+	}
+],
+	function(err, result) {
+		for (var i = 0; i < results.length; i++) {
+			console.log(results[i]);
+		}
+	}
+);
